@@ -173,3 +173,64 @@ export const updateFondo = (id_fondo: number, nombre_fondo: string, meta: number
 export const deleteFondo = (id_fondo: number) => {
   return db.runSync('DELETE FROM Fondos WHERE id_fondo = ?', [id_fondo]);
 };
+
+// ===================== TARJETA DE CRÉDITO =====================
+
+const getCurrentMonthStringTC = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+export const getTarjetaCredito = (id_usuario: number): any => {
+  const tarjeta = db.getFirstSync(
+    'SELECT * FROM TarjetaCredito WHERE id_usuario = ?',
+    [id_usuario]
+  );
+  if (tarjeta) {
+    // Auto-reset si cambió el mes
+    const mesActual = getCurrentMonthStringTC();
+    if ((tarjeta as any).mes_pagado !== mesActual && (tarjeta as any).pagado === 1) {
+      db.runSync(
+        'UPDATE TarjetaCredito SET pagado = 0 WHERE id_tarjeta = ?',
+        [(tarjeta as any).id_tarjeta]
+      );
+      return { ...tarjeta, pagado: 0 };
+    }
+  }
+  return tarjeta;
+};
+
+export const upsertTarjetaCredito = (id_usuario: number, dia_pago: number) => {
+  const existing = db.getFirstSync(
+    'SELECT * FROM TarjetaCredito WHERE id_usuario = ?',
+    [id_usuario]
+  );
+  if (existing) {
+    return db.runSync(
+      'UPDATE TarjetaCredito SET dia_pago = ? WHERE id_usuario = ?',
+      [dia_pago, id_usuario]
+    );
+  } else {
+    return db.runSync(
+      'INSERT INTO TarjetaCredito (id_usuario, dia_pago, pagado) VALUES (?, ?, 0)',
+      [id_usuario, dia_pago]
+    );
+  }
+};
+
+export const marcarPagoTarjeta = (id_usuario: number) => {
+  const mesActual = getCurrentMonthStringTC();
+  return db.runSync(
+    'UPDATE TarjetaCredito SET pagado = 1, mes_pagado = ? WHERE id_usuario = ?',
+    [mesActual, id_usuario]
+  );
+};
+
+export const desmarcarPagoTarjeta = (id_usuario: number) => {
+  return db.runSync(
+    'UPDATE TarjetaCredito SET pagado = 0, mes_pagado = NULL WHERE id_usuario = ?',
+    [id_usuario]
+  );
+};

@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 // Initialize the database connection
-const db = SQLite.openDatabaseSync('Ahorrando_ando_v4.db');
+const db = SQLite.openDatabaseSync('Ahorrando_ando_v5.db');
 
 /**
  * Creates the database schema replicating the Ahorrando_ando.sql structure
@@ -89,6 +89,15 @@ export const initDatabase = () => {
         monto REAL NOT NULL,
         fecha TEXT NOT NULL,
         FOREIGN KEY (id_ahorro) REFERENCES Ahorros(id_ahorro) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS TarjetaCredito (
+        id_tarjeta INTEGER PRIMARY KEY,
+        id_usuario INTEGER NOT NULL,
+        dia_pago INTEGER NOT NULL CHECK(dia_pago >= 1 AND dia_pago <= 31),
+        pagado INTEGER NOT NULL DEFAULT 0,
+        mes_pagado TEXT,
+        FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
     );
 
     INSERT OR IGNORE INTO Categoria_Gastos (id_categoria, nombre_categoria, tipo) VALUES (1, 'Gasto Fijo', 'fijo');

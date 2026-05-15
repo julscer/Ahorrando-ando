@@ -10,6 +10,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import AhorroInversionScreen from './src/screens/AhorroInversionScreen';
 import FondosScreen from './src/screens/FondosScreen';
 import EgresosScreen from './src/screens/EgresosScreen';
+import SaludFinancieraScreen from './src/screens/SaludFinancieraScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,10 @@ export default function App() {
         <Stack.Screen 
           name="Egresos" 
           component={EgresosScreen} 
+        />
+        <Stack.Screen 
+          name="SaludFinanciera" 
+          component={SaludFinancieraScreen} 
         />
       </Stack.Navigator>
     </NavigationContainer>
